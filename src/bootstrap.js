@@ -1,27 +1,18 @@
 'use strict';
 
-const fs = require('fs-extra');
-const path = require('path');
-const mime = require('mime-types');
-const { categories, authors, articles, global, about } = require('../data/data.json');
+/**
+ * Bootstrap file for Open HR CMS
+ *
+ * The old example app seeding (categories, articles, authors) has been disabled
+ * because those content types don't exist in the Open HR schema.
+ *
+ * For Open HR content seeding, use: npm run seed:openhr
+ */
 
 async function seedExampleApp() {
-  const shouldImportSeedData = await isFirstRun();
-
-  if (shouldImportSeedData) {
-    try {
-      console.log('Setting up the template...');
-      await importSeedData();
-      console.log('Ready to go');
-    } catch (error) {
-      console.log('Could not import seed data');
-      console.error(error);
-    }
-  } else {
-    console.log(
-      'Seed data has already been imported. We cannot reimport unless you clear your database first.'
-    );
-  }
+  // Old example app seeding disabled - content types don't exist in Open HR schema
+  // Use npm run seed:openhr for Open HR content seeding
+  console.log('Bootstrap: Open HR CMS ready. Run "npm run seed:openhr" to seed content.');
 }
 
 async function isFirstRun() {

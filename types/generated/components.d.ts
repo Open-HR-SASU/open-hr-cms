@@ -1,75 +1,214 @@
-import type { Struct, Schema } from '@strapi/strapi';
+import type { Schema, Struct } from '@strapi/strapi';
 
-export interface SharedSlider extends Struct.ComponentSchema {
-  collectionName: 'components_shared_sliders';
+export interface SharedAnnouncementBar extends Struct.ComponentSchema {
+  collectionName: 'components_shared_announcement_bars';
   info: {
-    displayName: 'Slider';
-    icon: 'address-book';
-    description: '';
+    description: 'Site-wide announcement banner';
+    displayName: 'Announcement Bar';
+    icon: 'bell';
   };
   attributes: {
-    files: Schema.Attribute.Media<'images', true>;
+    enabled: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    link: Schema.Attribute.String;
+    linkLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 20;
+      }>;
+    message: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 80;
+      }>;
+    style: Schema.Attribute.Enumeration<['info', 'success', 'warning']> &
+      Schema.Attribute.DefaultTo<'info'>;
   };
 }
 
-export interface SharedSeo extends Struct.ComponentSchema {
-  collectionName: 'components_shared_seos';
+export interface SharedEmptyState extends Struct.ComponentSchema {
+  collectionName: 'components_shared_empty_states';
   info: {
-    name: 'Seo';
-    icon: 'allergies';
-    displayName: 'Seo';
-    description: '';
+    description: 'Fallback content when section has no items';
+    displayName: 'Empty State';
+    icon: 'file';
   };
   attributes: {
-    metaTitle: Schema.Attribute.String & Schema.Attribute.Required;
-    metaDescription: Schema.Attribute.Text & Schema.Attribute.Required;
-    shareImage: Schema.Attribute.Media<'images'>;
+    body: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 150;
+      }>;
+    ctaLink: Schema.Attribute.String;
+    ctaText: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 25;
+      }>;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
   };
 }
 
-export interface SharedRichText extends Struct.ComponentSchema {
-  collectionName: 'components_shared_rich_texts';
+export interface SharedFeature extends Struct.ComponentSchema {
+  collectionName: 'components_shared_features';
   info: {
-    displayName: 'Rich text';
-    icon: 'align-justify';
-    description: '';
+    description: 'Individual feature item for features sections';
+    displayName: 'Feature';
+    icon: 'star';
   };
   attributes: {
-    body: Schema.Attribute.RichText;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 150;
+      }>;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 50;
+      }>;
+    icon: Schema.Attribute.Enumeration<
+      [
+        'checkmark',
+        'shield',
+        'clock',
+        'users',
+        'chart',
+        'star',
+        'lock',
+        'globe',
+        'briefcase',
+        'award',
+        'trending-up',
+        'file-check',
+        'message-circle',
+        'zap',
+        'target',
+        'layers',
+      ]
+    > &
+      Schema.Attribute.Required;
+    link: Schema.Attribute.String;
+    linkLabel: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 25;
+      }>;
   };
 }
 
-export interface SharedQuote extends Struct.ComponentSchema {
-  collectionName: 'components_shared_quotes';
+export interface SharedFooterColumn extends Struct.ComponentSchema {
+  collectionName: 'components_shared_footer_columns';
   info: {
-    displayName: 'Quote';
-    icon: 'indent';
+    description: 'Column of links in footer';
+    displayName: 'Footer Column';
+    icon: 'layout';
   };
   attributes: {
-    title: Schema.Attribute.String;
-    body: Schema.Attribute.Text;
+    links: Schema.Attribute.Component<'shared.footer-link', true>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 25;
+      }>;
   };
 }
 
-export interface SharedMedia extends Struct.ComponentSchema {
-  collectionName: 'components_shared_media';
+export interface SharedFooterLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_footer_links';
   info: {
-    displayName: 'Media';
-    icon: 'file-video';
+    description: 'Individual link in footer column';
+    displayName: 'Footer Link';
+    icon: 'link';
   };
   attributes: {
-    file: Schema.Attribute.Media<'images' | 'files' | 'videos'>;
+    href: Schema.Attribute.String & Schema.Attribute.Required;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 30;
+      }>;
+  };
+}
+
+export interface SharedPricingFeature extends Struct.ComponentSchema {
+  collectionName: 'components_shared_pricing_features';
+  info: {
+    description: 'Individual feature in pricing tier';
+    displayName: 'Pricing Feature';
+    icon: 'check';
+  };
+  attributes: {
+    included: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<true>;
+    text: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 60;
+      }>;
+    tooltip: Schema.Attribute.Text &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 150;
+      }>;
+  };
+}
+
+export interface SharedPricingTier extends Struct.ComponentSchema {
+  collectionName: 'components_shared_pricing_tiers';
+  info: {
+    description: 'Pricing tier card (feature lists only - prices code-driven)';
+    displayName: 'Pricing Tier';
+    icon: 'priceTag';
+  };
+  attributes: {
+    badge: Schema.Attribute.String &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 20;
+      }>;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 100;
+      }>;
+    features: Schema.Attribute.Component<'shared.pricing-feature', true>;
+    highlighted: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 30;
+      }>;
+    tierKey: Schema.Attribute.Enumeration<['essential', 'professional']> &
+      Schema.Attribute.Required;
+  };
+}
+
+export interface SharedSocialLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_social_links';
+  info: {
+    description: 'Social media profile link';
+    displayName: 'Social Link';
+    icon: 'earth';
+  };
+  attributes: {
+    platform: Schema.Attribute.Enumeration<['linkedin', 'twitter']> &
+      Schema.Attribute.Required;
+    url: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
-      'shared.slider': SharedSlider;
-      'shared.seo': SharedSeo;
-      'shared.rich-text': SharedRichText;
-      'shared.quote': SharedQuote;
-      'shared.media': SharedMedia;
+      'shared.announcement-bar': SharedAnnouncementBar;
+      'shared.empty-state': SharedEmptyState;
+      'shared.feature': SharedFeature;
+      'shared.footer-column': SharedFooterColumn;
+      'shared.footer-link': SharedFooterLink;
+      'shared.pricing-feature': SharedPricingFeature;
+      'shared.pricing-tier': SharedPricingTier;
+      'shared.social-link': SharedSocialLink;
     }
   }
 }

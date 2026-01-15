@@ -1,0 +1,24 @@
+{
+  "kind": "singleType",
+  "collectionName": "footers",
+  "info": {
+    "singularName": "footer",
+    "pluralName": "footers",
+    "displayName": "Footer",
+    "description": "Site footer content (one instance)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "copyrightText": {
+      "type": "string",
+      "required": true
+    },
+    "columns": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.footer-column"
+    }
+  }
+}

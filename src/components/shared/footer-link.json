@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_shared_footer_links",
+  "info": {
+    "displayName": "Footer Link",
+    "icon": "link",
+    "description": "Individual link in footer column"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true,
+      "maxLength": 30
+    },
+    "href": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

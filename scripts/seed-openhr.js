@@ -233,7 +233,6 @@ async function createPagesWithSections(pages, sectionsData) {
       metaTitle: pageData.metaTitle,
       metaDescription: pageData.metaDescription,
       ogImageAlt: pageData.ogImageAlt,
-      publishedAt: new Date(),
     };
 
     let page;
@@ -241,13 +240,15 @@ async function createPagesWithSections(pages, sectionsData) {
       page = await strapi.documents('api::page.page').update({
         documentId: existingPage.documentId,
         data: pageEntry,
+        status: 'published',
       });
       console.log(`Updated page: ${pageData.title}`);
     } else {
       page = await strapi.documents('api::page.page').create({
         data: pageEntry,
+        status: 'published',
       });
-      console.log(`Created page: ${pageData.title}`);
+      console.log(`Created page: ${pageData.title} (documentId: ${page.documentId})`);
     }
 
     // Create sections for this page
@@ -259,14 +260,14 @@ async function createPagesWithSections(pages, sectionsData) {
 }
 
 async function createSection(data, pageDocumentId) {
-  // Check if section already exists by anchor and page
+  // Check if section already exists by anchor
   const existingSection = await strapi.documents('api::section.section').findFirst({
     filters: {
       anchor: data.anchor,
-      page: { documentId: pageDocumentId },
     },
   });
 
+  // Create section data without the relation first
   const sectionEntry = {
     type: data.type,
     eyebrow: data.eyebrow || null,
@@ -285,21 +286,38 @@ async function createSection(data, pageDocumentId) {
     order: data.order || 0,
     features: data.features || [],
     pricingTiers: data.pricingTiers || [],
-    page: pageDocumentId,
-    publishedAt: new Date(),
   };
 
+  let section;
   if (existingSection) {
-    await strapi.documents('api::section.section').update({
+    section = await strapi.documents('api::section.section').update({
       documentId: existingSection.documentId,
       data: sectionEntry,
+      status: 'published',
     });
     console.log(`  Updated section: ${data.type} (${data.anchor})`);
   } else {
-    await strapi.documents('api::section.section').create({
+    section = await strapi.documents('api::section.section').create({
       data: sectionEntry,
+      status: 'published',
     });
     console.log(`  Created section: ${data.type} (${data.anchor})`);
+  }
+
+  // Connect the relation using Query Engine API
+  // First get the internal IDs
+  const sectionRecord = await strapi.db.query('api::section.section').findOne({
+    where: { documentId: section.documentId },
+  });
+  const pageRecord = await strapi.db.query('api::page.page').findOne({
+    where: { documentId: pageDocumentId },
+  });
+
+  if (sectionRecord && pageRecord) {
+    await strapi.db.query('api::section.section').update({
+      where: { id: sectionRecord.id },
+      data: { page: pageRecord.id },
+    });
   }
 }
 

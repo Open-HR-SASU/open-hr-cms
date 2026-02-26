@@ -7,7 +7,7 @@ export default defineConfig({
   name: 'default',
   title: 'Open HR CMS',
 
-  projectId: 'kg29oq3t',
+  projectId: 'tbkdha33',
   dataset: 'production',
 
   plugins: [structureTool(), visionTool()],

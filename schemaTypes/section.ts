@@ -21,6 +21,10 @@ const SECTION_TYPES = [
   {title: 'Logos', value: 'logos'},
   {title: 'Process', value: 'process'},
   {title: 'Comparison', value: 'comparison'},
+  {title: 'Hero + Mockup', value: 'heroMockup'},
+  {title: 'How It Works', value: 'howItWorks'},
+  {title: 'App Preview', value: 'appPreview'},
+  {title: 'Split Mockup', value: 'splitMockup'},
 ]
 
 const CTA_STYLES = [
@@ -84,7 +88,7 @@ export default defineType({
       title: 'Features',
       type: 'array',
       of: [{type: 'feature'}],
-      hidden: ({document}) => document?.sectionType !== 'features',
+      hidden: ({document}) => !['features', 'howItWorks', 'process'].includes(document?.sectionType as string),
     }),
     defineField({
       name: 'pricingTiers',

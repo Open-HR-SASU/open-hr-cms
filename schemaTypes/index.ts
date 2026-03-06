@@ -4,6 +4,8 @@ import section from './section'
 import navigationItem from './navigationItem'
 import siteSettings from './siteSettings'
 import footer from './footer'
+import article from './article'
+import author from './author'
 
 // Object types
 import seo from './objects/seo'
@@ -25,6 +27,8 @@ export const schemaTypes = [
   navigationItem,
   siteSettings,
   footer,
+  article,
+  author,
   // Objects
   seo,
   portableText,

@@ -10,6 +10,15 @@ const LANGUAGES = [
   {title: 'Espanol', value: 'es'},
 ]
 
+const SERIES_TYPES = [
+  {title: 'Pillar Article', value: 'pillar'},
+  {title: 'Glossary ("What is…?")', value: 'glossary'},
+  {title: 'Myth vs. Fact', value: 'myth-vs-fact'},
+  {title: 'Compliance Brief', value: 'compliance'},
+  {title: 'Research Digest', value: 'research-digest'},
+  {title: 'Ask Open HR (FAQ)', value: 'faq'},
+]
+
 export default defineType({
   name: 'article',
   title: 'Insight Article',
@@ -23,6 +32,43 @@ export default defineType({
       type: 'string',
       options: {list: LANGUAGES},
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'seriesType',
+      title: 'Content Series',
+      type: 'string',
+      options: {list: SERIES_TYPES, layout: 'radio'},
+      initialValue: 'pillar',
+      validation: (rule) => rule.required(),
+      description: 'Determines URL path, template variant, and JSON-LD schema type.',
+    }),
+    defineField({
+      name: 'relatedPillar',
+      title: 'Related Pillar Article',
+      type: 'reference',
+      to: [{type: 'article'}],
+      description: 'Link to the parent pillar article for internal linking and topical authority.',
+      options: {
+        filter: 'seriesType == "pillar"',
+      },
+      hidden: ({parent}) => parent?.seriesType === 'pillar',
+    }),
+    defineField({
+      name: 'verdict',
+      title: 'Myth Verdict',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'False', value: 'false'},
+          {title: 'Mostly False', value: 'mostly-false'},
+          {title: 'Half True', value: 'half-true'},
+          {title: 'Mostly True', value: 'mostly-true'},
+          {title: 'True', value: 'true'},
+        ],
+        layout: 'radio',
+      },
+      hidden: ({parent}) => parent?.seriesType !== 'myth-vs-fact',
+      description: 'Verdict rating for ClaimReview JSON-LD (myth-vs-fact articles only).',
     }),
     defineField({
       name: 'title',
@@ -92,8 +138,16 @@ export default defineType({
       type: 'text',
       rows: 4,
       description:
-        'GEO-optimised summary block displayed at the top of the article. Direct, concise.',
-      validation: (rule) => rule.required().max(500),
+        'GEO-optimised summary block displayed at the top of the article. Direct, concise. Required for pillar and research-digest articles.',
+      validation: (rule) =>
+        rule.max(500).custom((value, context) => {
+          const parent = context.parent as {seriesType?: string} | undefined
+          const series = parent?.seriesType
+          if ((series === 'pillar' || series === 'research-digest') && !value) {
+            return 'TL;DR is required for pillar articles and research digests.'
+          }
+          return true
+        }),
     }),
     defineField({
       name: 'body',
@@ -108,7 +162,7 @@ export default defineType({
       title: 'FAQ Section',
       type: 'array',
       description:
-        'Questions and answers rendered as FAQ section and FAQPage JSON-LD schema.',
+        'Questions and answers rendered as FAQ section and FAQPage JSON-LD schema. Required (3-7 items) for pillar articles; optional for other series.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -135,7 +189,14 @@ export default defineType({
         }),
       ],
       validation: (rule) =>
-        rule.min(3).max(7).error('Include 3-7 FAQ items for optimal GEO performance.'),
+        rule.custom((value, context) => {
+          const parent = context.parent as {seriesType?: string} | undefined
+          if (parent?.seriesType === 'pillar') {
+            if (!value || value.length < 3) return 'Pillar articles require 3-7 FAQ items.'
+            if (value.length > 7) return 'Maximum 7 FAQ items for optimal GEO performance.'
+          }
+          return true
+        }),
     }),
 
     // --- Academic references ---
@@ -194,13 +255,23 @@ export default defineType({
     select: {
       title: 'title',
       language: 'language',
+      seriesType: 'seriesType',
       authorName: 'author.name',
       media: 'coverImage',
     },
-    prepare({title, language, authorName, media}) {
+    prepare({title, language, seriesType, authorName, media}) {
+      const seriesLabels: Record<string, string> = {
+        pillar: 'Pillar',
+        glossary: 'Glossary',
+        'myth-vs-fact': 'Myth vs. Fact',
+        compliance: 'Compliance',
+        'research-digest': 'Research',
+        faq: 'FAQ',
+      }
+      const series = seriesType ? seriesLabels[seriesType] || seriesType : ''
       return {
         title: title || 'Untitled',
-        subtitle: [language?.toUpperCase(), authorName].filter(Boolean).join(' | '),
+        subtitle: [language?.toUpperCase(), series, authorName].filter(Boolean).join(' | '),
         media,
       }
     },

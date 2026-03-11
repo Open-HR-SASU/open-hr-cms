@@ -235,6 +235,21 @@ export default defineType({
       ],
     }),
 
+    // --- Related articles ---
+    defineField({
+      name: 'relatedArticles',
+      title: 'Related Articles',
+      type: 'array',
+      description: 'Up to 5 related glossary terms or articles for internal linking.',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{type: 'article'}],
+        }),
+      ],
+      validation: (rule) => rule.max(5).unique(),
+    }),
+
     // --- SEO ---
     defineField({
       name: 'seo',
